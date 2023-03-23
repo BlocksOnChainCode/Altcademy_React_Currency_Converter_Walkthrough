@@ -1,11 +1,14 @@
 class CurrencyConverter extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
+    this.state = { // ? state is an object that holds data that can change over time
       rate: 0.89,
       usd: 1,
       euro: 1 * 0.89,
     };
+
+    this.handleUsdChange = this.handleUsdChange.bind(this); // ? bind the method to the class so that currencyInput can access it
+    this.handleEuroChange = this.handleEuroChange.bind(this); // ? bind the method to the class so that currencyInput can access it
   }
 
   toUsd(amount, rate) {
@@ -14,6 +17,30 @@ class CurrencyConverter extends React.Component {
 
   toEuro(amount, rate) {
     return amount * rate;
+  }
+
+  convert(amount, rate, equation) {
+    const input = parseFloat(amount);
+    if (Number.isNaN(input)) {
+      return '';
+    }
+    return equation(input, rate).toFixed(3);
+  }
+
+  handleUsdChange(event) {
+    const euro = this.convert(event.target.value, this.state.rate, this.toEuro);
+    this.setState({
+      usd: event.target.value,
+      euro
+    });
+  }
+
+  handleEuroChange(event) {
+    const usd = this.convert(event.target.value, this.state.rate, this.toUsd);
+    this.setState({
+      euro: event.target.value,
+      usd
+    });
   }
 
   render() {
@@ -28,9 +55,9 @@ class CurrencyConverter extends React.Component {
         <div className="row text-center">
           <div className="col-12">
             <span className="mr-1">USD</span>
-            <input value={usd} onChange={this.handleUsdChange} type="number" />
+            <CurrencyInput value={usd} handleChange={this.handleUsdChange} /> 
             <span className="mx-3">=</span>
-            <input value={euro} onChange={this.handleEuroChange} type="number" />
+            <CurrencyInput value={euro} handleChange={this.handleEuroChange} />
             <span className="ml-1">EURO</span>
           </div>
         </div>
@@ -38,6 +65,15 @@ class CurrencyConverter extends React.Component {
     )
   }
 }
+
+class CurrencyInput extends React.Component {
+  render() {
+    const { value, handleChange } = this.props; // ? props passed down from CurrencyConverter at line src 73
+
+    return <input value={value} onChange={handleChange} type="number" />
+  }
+}
+
 
 ReactDOM.render(
   <CurrencyConverter />,

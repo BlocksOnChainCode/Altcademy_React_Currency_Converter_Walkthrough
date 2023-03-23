@@ -14,11 +14,14 @@ var CurrencyConverter = function (_React$Component) {
 
     var _this = _possibleConstructorReturn(this, (CurrencyConverter.__proto__ || Object.getPrototypeOf(CurrencyConverter)).call(this, props));
 
-    _this.state = {
+    _this.state = { // ? state is an object that holds data that can change over time
       rate: 0.89,
       usd: 1,
       euro: 1 * 0.89
     };
+
+    _this.handleUsdChange = _this.handleUsdChange.bind(_this); // ? bind the method to the class so that currencyInput can access it
+    _this.handleEuroChange = _this.handleEuroChange.bind(_this); // ? bind the method to the class so that currencyInput can access it
     return _this;
   }
 
@@ -31,6 +34,33 @@ var CurrencyConverter = function (_React$Component) {
     key: "toEuro",
     value: function toEuro(amount, rate) {
       return amount * rate;
+    }
+  }, {
+    key: "convert",
+    value: function convert(amount, rate, equation) {
+      var input = parseFloat(amount);
+      if (Number.isNaN(input)) {
+        return '';
+      }
+      return equation(input, rate).toFixed(3);
+    }
+  }, {
+    key: "handleUsdChange",
+    value: function handleUsdChange(event) {
+      var euro = this.convert(event.target.value, this.state.rate, this.toEuro);
+      this.setState({
+        usd: event.target.value,
+        euro: euro
+      });
+    }
+  }, {
+    key: "handleEuroChange",
+    value: function handleEuroChange(event) {
+      var usd = this.convert(event.target.value, this.state.rate, this.toUsd);
+      this.setState({
+        euro: event.target.value,
+        usd: usd
+      });
     }
   }, {
     key: "render",
@@ -71,13 +101,13 @@ var CurrencyConverter = function (_React$Component) {
               { className: "mr-1" },
               "USD"
             ),
-            React.createElement("input", { value: usd, onChange: this.handleUsdChange, type: "number" }),
+            React.createElement(CurrencyInput, { value: usd, handleChange: this.handleUsdChange }),
             React.createElement(
               "span",
               { className: "mx-3" },
               "="
             ),
-            React.createElement("input", { value: euro, onChange: this.handleEuroChange, type: "number" }),
+            React.createElement(CurrencyInput, { value: euro, handleChange: this.handleEuroChange }),
             React.createElement(
               "span",
               { className: "ml-1" },
@@ -90,6 +120,29 @@ var CurrencyConverter = function (_React$Component) {
   }]);
 
   return CurrencyConverter;
+}(React.Component);
+
+var CurrencyInput = function (_React$Component2) {
+  _inherits(CurrencyInput, _React$Component2);
+
+  function CurrencyInput() {
+    _classCallCheck(this, CurrencyInput);
+
+    return _possibleConstructorReturn(this, (CurrencyInput.__proto__ || Object.getPrototypeOf(CurrencyInput)).apply(this, arguments));
+  }
+
+  _createClass(CurrencyInput, [{
+    key: "render",
+    value: function render() {
+      var _props = this.props,
+          value = _props.value,
+          handleChange = _props.handleChange; // ? props passed down from CurrencyConverter at line src 73
+
+      return React.createElement("input", { value: value, onChange: handleChange, type: "number" });
+    }
+  }]);
+
+  return CurrencyInput;
 }(React.Component);
 
 ReactDOM.render(React.createElement(CurrencyConverter, null), document.getElementById('root'));
